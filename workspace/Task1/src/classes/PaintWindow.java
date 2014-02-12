@@ -54,15 +54,36 @@ public class PaintWindow extends JPanel implements MouseListener,
 	private ColorPickerWindow colorPickerWindow;
 	/**
 	 * A series of constants representing the type of shape to draw, saved in
-	 * {@link #shape}. CIRCLE = 0, ELLIPSE = 1, LINE = 2, RECTANGLE = 3,
-			SQUARE = 4)
+	 * {@link #shape}. CIRCLE = 0, ELLIPSE = 1, LINE = 2, RECTANGLE = 3, SQUARE
+	 * = 4)
 	 */
 	public final int CIRCLE = 0, ELLIPSE = 1, LINE = 2, RECTANGLE = 3,
 			SQUARE = 4;
+	/**
+	 * The kind of shape that is currently being drawn
+	 */
 	private int shape;
+	/**
+	 * The starting point (set by {@link #mousePressed(MouseEvent)}) and end
+	 * point (set by {@link #mouseDragged(MouseEvent)} and
+	 * {@link #mouseReleased(MouseEvent)}) of the mouse.
+	 */
 	private Point startPoint, endPoint;
+	/**
+	 * The start point, width and height for the shape, set in
+	 * {@link #setDimensions(MouseEvent)}
+	 */
 	private int startX, startY, width, height;
+	/**
+	 * One list saving all the currently visible shapes ({@link #coloredShapes})
+	 * and one list saving all the shapes that has been undone (
+	 * {@link #undoneColoredShapes})
+	 */
 	public Vector<ColoredShape> coloredShapes, undoneColoredShapes;
+	/**
+	 * The current file to save to. null if the file hasn't already been saved,
+	 * is set in FileMenuOptions.saveAs(java.awt.Container, File, Vector)}. 
+	 */
 	public File saveFile;
 	private static Frame mainFrame;
 
