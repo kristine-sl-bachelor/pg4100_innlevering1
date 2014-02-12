@@ -1,3 +1,7 @@
+/**
+ * @author Kristine Sundt Lorentzen
+ */
+
 package classes;
 
 import java.awt.BasicStroke;
