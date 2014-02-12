@@ -37,9 +37,26 @@ public class PaintWindow extends JPanel implements MouseListener,
 		MouseMotionListener {
 
 	private static final long serialVersionUID = 1L;
+	/**
+	 * A color which get changed when selecting a new color with the
+	 * {@link ColorPickerWindow} to use in the program
+	 */
 	public Color primaryColor, borderColor;
-	public boolean hasBorder, isFilled, choosingPrimaryColor;
+	/**
+	 * A boolean describing which part on the shape to draw (border/fill)
+	 */
+	public boolean hasBorder, isFilled;
+	/**
+	 * A boolean describing which color is being chosen (primary = true/border =
+	 * false)
+	 */
+	public boolean choosingPrimaryColor;
 	private ColorPickerWindow colorPickerWindow;
+	/**
+	 * A series of constants representing the type of shape to draw, saved in
+	 * {@link #shape}. CIRCLE = 0, ELLIPSE = 1, LINE = 2, RECTANGLE = 3,
+			SQUARE = 4)
+	 */
 	public final int CIRCLE = 0, ELLIPSE = 1, LINE = 2, RECTANGLE = 3,
 			SQUARE = 4;
 	private int shape;
@@ -202,17 +219,33 @@ public class PaintWindow extends JPanel implements MouseListener,
 		}
 	}
 
+	/**
+	 * Clears the history of both the drawn and undone shapes by clearing
+	 * {@link #coloredShapes} and {@link #undoneColoredShapes
+
+	 */
 	public void clear() {
 		coloredShapes.clear();
 		undoneColoredShapes.clear();
 		repaint();
 	}
 
+	/**
+	 * A panel containing a {@link JColorChooser} without a preview panel. Has a
+	 * {@link #show()} method which opens the panel in a {@link JFrame}.
+	 * 
+	 * @author Kristine Sundt Lorentzen
+	 * 
+	 */
 	public class ColorPickerWindow extends JPanel implements ChangeListener {
 
 		private static final long serialVersionUID = 1L;
 		private JColorChooser tcc;
 
+		/**
+		 * Initializes the {@link JColorChooser} and adds it to the
+		 * {@link JPanel}
+		 */
 		public ColorPickerWindow() {
 			tcc = new JColorChooser(primaryColor);
 			tcc.getSelectionModel().addChangeListener(this);
@@ -222,6 +255,9 @@ public class PaintWindow extends JPanel implements MouseListener,
 			add(tcc, BorderLayout.CENTER);
 		}
 
+		/**
+		 * Creates a new {@link JFrame} and sets it to hide on close.
+		 */
 		public void show() {
 			JFrame frame = new JFrame("Color picker");
 			frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -235,6 +271,14 @@ public class PaintWindow extends JPanel implements MouseListener,
 			frame.setVisible(true);
 		}
 
+		/**
+		 * Registers a click on the palette on the {@link JColorChooser} and
+		 * gets the selected color
+		 * 
+		 * @param e
+		 *            Registers a change in the palette, which in this situation
+		 *            is a click.
+		 */
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			if (choosingPrimaryColor) {
@@ -296,6 +340,15 @@ public class PaintWindow extends JPanel implements MouseListener,
 
 	}
 
+	/**
+	 * Sets the starting- and end points for the drawing of all the shapes
+	 * except line. This is to make the program be able to draw something even
+	 * if the x and y coordinates of {@link #endPoint} is less than those of
+	 * {@link #startPoint}
+	 * 
+	 * @param e
+	 *            a mouse event
+	 */
 	private void setDimensions(MouseEvent e) {
 		endPoint = e.getPoint();
 		startX = Math.min(startPoint.x, endPoint.x);
