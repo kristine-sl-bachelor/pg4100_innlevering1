@@ -11,9 +11,25 @@ import java.io.ObjectOutputStream;
 import java.util.Vector;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
+/**
+ * A class containing static methods that are used to save, open or print a file
+ * in the program.
+ * 
+ * @author Kristine Sundt Lorentzen
+ * 
+ */
 public class FileMenuOptions {
 
+	/**
+	 * Opens a file from somewhere on the computer.
+	 * 
+	 * @param parent
+	 *            the container that the open window is based on.
+	 * @return a file of the type {@link File} which then can be read by
+	 *         {@link #getInfoFromFile(File)}
+	 */
 	public static File open(Container parent) {
 		JFileChooser opener = new JFileChooser();
 
@@ -25,42 +41,111 @@ public class FileMenuOptions {
 		return null;
 	}
 
+	/**
+	 * Thoroughly checks if the file can be opened, both by catching exceptions
+	 * and checking the casting. Show an error box if you can't with
+	 * {@link #showAlertOpen(Container)}.
+	 * 
+	 * Suppresses unchecked because this gets tested.
+	 * 
+	 * @param file
+	 *            the file to read information from
+	 * @param parent
+	 *            the parent to use in {@link #showAlertOpen(Container)} if
+	 *            necessary
+	 * @return a populated Vector<ColoredShape> to use in {@link PaintWindow}
+	 */
 	@SuppressWarnings("unchecked")
-	public static Vector<ColoredShape> getInfoFromFile(File file) {
+	public static Vector<ColoredShape> getInfoFromFile(File file,
+			Container parent) {
 		try (FileInputStream fIn = new FileInputStream(file);
 				ObjectInputStream objIn = new ObjectInputStream(fIn)) {
-			return (Vector<ColoredShape>) objIn.readObject();
+			Object o = objIn.readObject();
+
+			// Check to see if the program can read the data
+			if (o instanceof Vector<?>) {
+				Vector<?> vector = (Vector<?>) o;
+				if (vector.size() != 0) {
+					Object o2 = vector.get(0);
+					if (o2 instanceof ColoredShape) {
+						return (Vector<ColoredShape>) o;
+					} else
+						showAlertOpen(parent);
+				} else
+					showAlertOpen(parent);
+			} else
+				showAlertOpen(parent);
 
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			showAlertOpen(parent);
 		} catch (IOException e) {
-			e.printStackTrace();
+			showAlertOpen(parent);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			showAlertOpen(parent);
 		}
 
 		return new Vector<ColoredShape>();
 	}
 
-	public static File saveAs(Container parent, File saveFile,
-			Vector<ColoredShape> coloredShapes) {
-		JFileChooser saver = new JFileChooser();
-
-		int result = saver.showSaveDialog(parent);
-		if (result == JFileChooser.APPROVE_OPTION) {
-			saveFile = saver.getSelectedFile();
-			save(parent, saveFile, coloredShapes);
-		}
-		return saveFile;
+	/**
+	 * Shows a {@link JOptionPane} with an error message about not being able to
+	 * open the selected file.
+	 * 
+	 * @param parent
+	 */
+	private static void showAlertOpen(Container parent) {
+		JOptionPane.showMessageDialog(parent, "Couldn't open file.", "Error",
+				JOptionPane.ERROR_MESSAGE);
 	}
 
+	/**
+	 * Gets called if the file is being saved for the first time or the user has
+	 * selected the "Save as" option in the menu. Opens a {@link JFileChooser}
+	 * save window and prompts the user to save. When the user approves, that
+	 * information is then sent to {@link #save(Container, File, Vector)}
+	 * 
+	 * @param parent
+	 *            the parent to place the window
+	 * @param coloredShapes
+	 *            the data to save
+	 * @return returns a file ready to save so that that can get stored for
+	 *         further use in {@link PaintWindow}
+	 */
+	public static File saveAs(Container parent,
+			Vector<ColoredShape> coloredShapes) {
+		JFileChooser saver = new JFileChooser();
+		File file = null;
+		int result = saver.showSaveDialog(parent);
+		if (result == JFileChooser.APPROVE_OPTION) {
+			file = saver.getSelectedFile();
+			save(parent, file, coloredShapes);
+		}
+		return file;
+	}
+
+	/**
+	 * Saves the given file to the computer
+	 * 
+	 * @param parent
+	 *            parent to use in the {@link #saveAs(Container, Vector)} method
+	 *            if the given file is null
+	 * @param saveFile
+	 *            the given save file
+	 * @param coloredShapes
+	 *            the data to save
+	 * @return
+	 */
 	public static File save(Container parent, File saveFile,
 			Vector<ColoredShape> coloredShapes) {
+
 		if (saveFile == null) {
-			return saveAs(parent, saveFile, coloredShapes);
+			return saveAs(parent, coloredShapes);
 		} else {
 			try (FileOutputStream fOut = new FileOutputStream(saveFile + "");
 					ObjectOutputStream objOut = new ObjectOutputStream(fOut)) {
+				if (coloredShapes.size() == 0) {
+					coloredShapes.add(new ColoredShape());
+				}
 
 				objOut.writeObject(coloredShapes);
 				return saveFile;
@@ -73,6 +158,9 @@ public class FileMenuOptions {
 		return null;
 	}
 
+	/**
+	 * Prints 
+	 */
 	public static void print() {
 
 	}

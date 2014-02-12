@@ -221,6 +221,8 @@ public class PaintWindow extends JPanel implements MouseListener,
 
 			repaint();
 		}
+		
+		mainFrame.editMenus[1].setEnabled(true);
 	}
 
 	/**
@@ -237,6 +239,10 @@ public class PaintWindow extends JPanel implements MouseListener,
 			undoneColoredShapes.remove(cs);
 
 			repaint();
+		}
+		
+		if(undoneColoredShapes.size() == 0) {
+			mainFrame.editMenus[1].setEnabled(false);
 		}
 	}
 

@@ -28,7 +28,7 @@ public class Frame extends JFrame implements ActionListener, MouseListener {
 	 * The menu items in each of the two menus in the menu bar at the top of the
 	 * page
 	 */
-	private JMenuItem[] fileMenus, editMenus;
+	public JMenuItem[] fileMenus, editMenus;
 	private PaintWindow paintWindow;
 	/**
 	 * The labels used in the top panel of the frame.
@@ -58,10 +58,10 @@ public class Frame extends JFrame implements ActionListener, MouseListener {
 	public Frame() {
 		super("Kristine Sundt Lorentzen");
 
-		createMenu();
-
 		paintWindow = new PaintWindow();
 		add(paintWindow, BorderLayout.CENTER);
+
+		createMenu();
 
 		initializeTopPanel();
 		placeTopPanel();
@@ -141,9 +141,10 @@ public class Frame extends JFrame implements ActionListener, MouseListener {
 		case "open":
 			File tempFile = FileMenuOptions.open(this);
 			if (tempFile != null) {
-				paintWindow.coloredShapes = FileMenuOptions
-						.getInfoFromFile(tempFile);
-				paintWindow.repaint();
+				paintWindow.coloredShapes = FileMenuOptions.getInfoFromFile(
+						tempFile, this);
+				if (paintWindow.coloredShapes.size() != 0)
+					paintWindow.repaint();
 			}
 			break;
 		case "save":
@@ -152,7 +153,7 @@ public class Frame extends JFrame implements ActionListener, MouseListener {
 			break;
 		case "save as":
 			paintWindow.saveFile = FileMenuOptions.saveAs(this,
-					paintWindow.saveFile, paintWindow.coloredShapes);
+					paintWindow.coloredShapes);
 			break;
 		case "print":
 			FileMenuOptions.print();
@@ -240,6 +241,10 @@ public class Frame extends JFrame implements ActionListener, MouseListener {
 			fileMenu.add(menuItem);
 		}
 
+		if (paintWindow.undoneColoredShapes.size() == 0) {
+			editMenus[1].setEnabled(false);
+			;
+		}
 		menuBar.add(fileMenu);
 
 		for (JMenuItem menuItem : editMenus) {
@@ -284,12 +289,10 @@ public class Frame extends JFrame implements ActionListener, MouseListener {
 	// Unused methods
 	@Override
 	public void mousePressed(MouseEvent e) {
-
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-
 	}
 
 	@Override
