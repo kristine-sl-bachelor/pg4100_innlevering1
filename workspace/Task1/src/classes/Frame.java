@@ -23,63 +23,94 @@ import javax.swing.JPanel;
 public class Frame extends JFrame implements ActionListener, MouseListener {
 
 	private static final long serialVersionUID = 1L;
+
+	/**
+	 * The menu items in each of the two menus in the menu bar at the top of the
+	 * page
+	 */
 	private JMenuItem[] fileMenus, editMenus;
-	private int height = 500;
-	private PaintWindow pw;
+	private PaintWindow paintWindow;
+	/**
+	 * The labels used in the top panel of the frame.
+	 */
 	public JLabel jlShape, jlPrimaryColor, jlBorderColor, preShape, preColor1,
 			preColor2;
+	/**
+	 * Constant used to differentiate which of the two colored labels that has
+	 * been pressed.
+	 */
 	private final String CHOOSE_PRI_COLOR = "pri", CHOOSE_BOR_COLOR = "bor";
+	/**
+	 * Checkboxes that set whether or not the shapes should have borders and be
+	 * filled.
+	 */
 	private JCheckBox cbHasBorder, cbIsFilled;
-	private JButton[] buttons;
+	/**
+	 * The buttons on the bottom of the window, where the user can select which
+	 * shape to draw or to exit the program
+	 */
+	private JButton[] bottomButtons;
 
+	/**
+	 * Creates all the buttons and the top panel of the window, as well as the
+	 * window itself.
+	 */
 	public Frame() {
 		super("Kristine Sundt Lorentzen");
 
 		createMenu();
 
-		pw = new PaintWindow();
-		add(pw, BorderLayout.CENTER);
+		paintWindow = new PaintWindow();
+		add(paintWindow, BorderLayout.CENTER);
 
 		initializeTopPanel();
 		placeTopPanel();
 
 		createBottomPanel();
 
-		setPreferredSize(new Dimension(buttons.length * 100 + 50, height));
+		setPreferredSize(new Dimension(bottomButtons.length * 100 + 200, 600));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setVisible(true);
 		pack();
 	}
 
+	/**
+	 * Initializes all the elements on the top panel and adds listeners to
+	 * these.
+	 */
 	private void initializeTopPanel() {
 		preShape = new JLabel("Your current shape is: ");
-		jlShape = new JLabel(pw.getCurrentShape());
+		jlShape = new JLabel(paintWindow.getCurrentShape());
 		preColor1 = new JLabel("Primary color: ");
 
 		jlPrimaryColor = new JLabel();
 		jlPrimaryColor.setOpaque(true);
-		jlPrimaryColor.setBackground(pw.primaryColor);
+		jlPrimaryColor.setBackground(paintWindow.primaryColor);
 		jlPrimaryColor.setName(CHOOSE_PRI_COLOR);
 		jlPrimaryColor.addMouseListener(this);
 
 		cbHasBorder = new JCheckBox("Use border");
-		cbHasBorder.setSelected(pw.hasBorder);
+		cbHasBorder.setSelected(paintWindow.hasBorder);
 		cbHasBorder.addActionListener(this);
 
 		cbIsFilled = new JCheckBox("Fill");
-		cbIsFilled.setSelected(pw.isFilled);
+		cbIsFilled.setSelected(paintWindow.isFilled);
 		cbIsFilled.addActionListener(this);
 
 		preColor2 = new JLabel("Border color:");
 
 		jlBorderColor = new JLabel();
 		jlBorderColor.setOpaque(true);
-		jlBorderColor.setBackground(pw.borderColor);
+		jlBorderColor.setBackground(paintWindow.borderColor);
 		jlBorderColor.setName(CHOOSE_BOR_COLOR);
 		jlBorderColor.addMouseListener(this);
 
 	}
 
+	/**
+	 * Places all the elements in the top panel in a {@link JPanel} and adds
+	 * this panel to BorderLayout.NORTH in the frame.
+	 */
 	private void placeTopPanel() {
 
 		JPanel top = new JPanel(new GridLayout(2, 4));
@@ -97,6 +128,10 @@ public class Frame extends JFrame implements ActionListener, MouseListener {
 		add(top, BorderLayout.NORTH);
 	}
 
+	/**
+	 * Registers all the button clicks and reacts accordingly. Used on the menu
+	 * on the top, the checkboxes and the buttons on the bottom.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String command = e.getActionCommand();
@@ -105,74 +140,79 @@ public class Frame extends JFrame implements ActionListener, MouseListener {
 		switch (command) {
 		case "open":
 			File tempFile = FileMenuOptions.open(this);
-			if(tempFile != null) {
-				pw.coloredShapes = FileMenuOptions.getInfoFromFile(tempFile); 
-				pw.repaint();
+			if (tempFile != null) {
+				paintWindow.coloredShapes = FileMenuOptions
+						.getInfoFromFile(tempFile);
+				paintWindow.repaint();
 			}
 			break;
 		case "save":
-			pw.saveFile = FileMenuOptions.save(this, pw.saveFile,
-					pw.coloredShapes);
+			paintWindow.saveFile = FileMenuOptions.save(this,
+					paintWindow.saveFile, paintWindow.coloredShapes);
 			break;
 		case "save as":
-			pw.saveFile = FileMenuOptions.saveAs(this, pw.saveFile,
-					pw.coloredShapes);
+			paintWindow.saveFile = FileMenuOptions.saveAs(this,
+					paintWindow.saveFile, paintWindow.coloredShapes);
 			break;
 		case "print":
 			FileMenuOptions.print();
 			break;
 		case "undo":
-			pw.undo();
+			paintWindow.undo();
 			break;
 		case "redo":
-			pw.redo();
+			paintWindow.redo();
 			break;
 		case "clear":
-			pw.clear();
+			paintWindow.clear();
 			break;
 		case "use border":
-			pw.hasBorder = !pw.hasBorder;
+			paintWindow.hasBorder = !paintWindow.hasBorder;
 			break;
 		case "fill":
-			pw.isFilled = !pw.isFilled;
+			paintWindow.isFilled = !paintWindow.isFilled;
 			break;
 		case "circle":
 			resetCheckBoxes();
-			pw.setShape(pw.CIRCLE);
+			paintWindow.setShape(paintWindow.CIRCLE);
 			break;
 		case "ellipse":
 			resetCheckBoxes();
-			pw.setShape(pw.ELLIPSE);
+			paintWindow.setShape(paintWindow.ELLIPSE);
 			break;
 		case "line":
 			cbHasBorder.setEnabled(false);
 			cbHasBorder.setSelected(false);
 			cbIsFilled.setEnabled(false);
 			cbIsFilled.setSelected(true);
-			pw.setShape(pw.LINE);
+			paintWindow.setShape(paintWindow.LINE);
 			break;
 		case "rectangle":
 			resetCheckBoxes();
-			pw.setShape(pw.RECTANGLE);
+			paintWindow.setShape(paintWindow.RECTANGLE);
 			break;
 		case "square":
 			resetCheckBoxes();
-			pw.setShape(pw.SQUARE);
+			paintWindow.setShape(paintWindow.SQUARE);
 			break;
 		case "exit":
 			System.exit(0);
 		}
 	}
 
+	/**
+	 * Creates and places all the buttons on the bottom panel. Does this
+	 * automatically from a local JButton[]
+	 */
 	private void createBottomPanel() {
-		buttons = new JButton[] { new JButton("Circle"),
+		bottomButtons = new JButton[] { new JButton("Circle"),
 				new JButton("Ellipse"), new JButton("Line"),
 				new JButton("Rectangle"), new JButton("Square"),
 				new JButton("Exit") };
 
-		JPanel buttonGrid = new JPanel(new GridLayout(0, buttons.length));
+		JPanel buttonGrid = new JPanel(new GridLayout(0, bottomButtons.length));
 
-		for (JButton button : buttons) {
+		for (JButton button : bottomButtons) {
 			button.addActionListener(this);
 			buttonGrid.add(button);
 		}
@@ -180,6 +220,9 @@ public class Frame extends JFrame implements ActionListener, MouseListener {
 		add(buttonGrid, BorderLayout.SOUTH);
 	}
 
+	/**
+	 * Creates the menu at the menu bar based on two local arrays.
+	 */
 	private void createMenu() {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = new JMenu("File");
@@ -215,21 +258,27 @@ public class Frame extends JFrame implements ActionListener, MouseListener {
 
 		switch (fieldName) {
 		case CHOOSE_PRI_COLOR:
-			pw.choosingPrimaryColor = true;
-			pw.showColorPicker();
+			paintWindow.choosingPrimaryColor = true;
+			paintWindow.showColorPicker();
 			break;
 		case CHOOSE_BOR_COLOR:
-			pw.choosingPrimaryColor = false;
-			pw.showColorPicker();
+			paintWindow.choosingPrimaryColor = false;
+			paintWindow.showColorPicker();
 			break;
 		}
 	}
 
+	/**
+	 * Resets the boxes according to whether or not the shape that is being
+	 * drawn should have a border or not. Necessary because these get disabled
+	 * and set to a default of border = false and fill = true when line is
+	 * selected.
+	 */
 	private void resetCheckBoxes() {
 		cbHasBorder.setEnabled(true);
-		cbHasBorder.setSelected(pw.hasBorder);
+		cbHasBorder.setSelected(paintWindow.hasBorder);
 		cbIsFilled.setEnabled(true);
-		cbIsFilled.setSelected(pw.isFilled);
+		cbIsFilled.setSelected(paintWindow.isFilled);
 	}
 
 	// Unused methods
