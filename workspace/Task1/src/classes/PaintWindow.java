@@ -1,7 +1,3 @@
-/**
- * @author Kristine Sundt Lorentzen
- */
-
 package classes;
 
 import java.awt.BasicStroke;
@@ -11,8 +7,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -30,8 +24,17 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class PaintWindow extends JPanel implements ActionListener,
-		MouseListener, MouseMotionListener {
+/**
+ * 
+ * This class is the main "Drawing board" for the program, which handles all the
+ * shapes that are drawn. This class also keeps track of the mouse movements
+ * within the frame to calculate where to place the shapes.
+ * 
+ * @author Kristine Sundt Lorentzen
+ * 
+ */
+public class PaintWindow extends JPanel implements MouseListener,
+		MouseMotionListener {
 
 	private static final long serialVersionUID = 1L;
 	public Color primaryColor, borderColor;
@@ -50,25 +53,46 @@ public class PaintWindow extends JPanel implements ActionListener,
 		mainFrame = new Frame();
 	}
 
+	/**
+	 * The constructor initializes all the values that the program needs,
+	 * including default colors and whether to use border and fill or not. It
+	 * also adds the {@link MouseListener} and the {@link MouseMotionListener}.
+	 * 
+	 */
 	public PaintWindow() {
 
 		initializeAssets();
-		setBackground(Color.white);
+		setBackground(Color.WHITE);
 
 		addMouseListener(this);
 		addMouseMotionListener(this);
 	}
 
+	/**
+	 * Initializes the following assets:
+	 * <p>
+	 * {@link #colorPickerWindow} <br>
+	 * {@link #primaryColor}<br>
+	 * {@link #borderColor}<br>
+	 * {@link #shape}<br>
+	 * {@link #coloredShapes}<br>
+	 * {@link #undoneColoredShapes}<br>
+	 * {@link #hasBorder}
+	 */
 	private void initializeAssets() {
 		colorPickerWindow = new ColorPickerWindow();
-		primaryColor = Color.magenta;
-		borderColor = Color.black;
+		primaryColor = Color.MAGENTA;
+		borderColor = Color.BLACK;
 		shape = CIRCLE;
 		coloredShapes = new Vector<ColoredShape>();
 		undoneColoredShapes = new Vector<ColoredShape>();
 		hasBorder = isFilled = true;
 	}
 
+	/**
+	 * Paints the shapes based on the information stored in each
+	 * {@link ColoredShape} in {@link #coloredShapes}.
+	 */
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
@@ -91,39 +115,28 @@ public class PaintWindow extends JPanel implements ActionListener,
 		}
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		String command = e.getActionCommand();
-		command = command.toLowerCase();
-
-		switch (command) {
-		case "circle":
-			shape = CIRCLE;
-			break;
-		case "ellipse":
-			shape = ELLIPSE;
-			break;
-		case "line":
-			shape = LINE;
-			break;
-		case "rectangle":
-			shape = RECTANGLE;
-			break;
-		case "square":
-			shape = SQUARE;
-			break;
-		case "exit":
-			System.exit(0);
-		}
-
-		mainFrame.jlShape.setText(getCurrentShape());
-	}
-
+	/**
+	 * Stores the selected shape and changes the text at the top of the frame
+	 * displaying the current shape. Called in
+	 * Frame.actionPerformed(java.awt.event.ActionEvent).
+	 * 
+	 * @param shape
+	 *            The identifier for the current shape ({@link #CIRCLE} /
+	 *            {@link #ELLIPSE} / {@link #LINE} / {@link #RECTANGLE} /
+	 *            {@link #SQUARE})
+	 */
 	public void setShape(int shape) {
 		this.shape = shape;
 		mainFrame.jlShape.setText(getCurrentShape());
 	}
 
+	/**
+	 * A method to get the value of the constants representing the current shape
+	 * ({@link #CIRCLE} / {@link #ELLIPSE} / {@link #LINE} / {@link #RECTANGLE}
+	 * / {@link #SQUARE})
+	 * 
+	 * @return The value of one of the constants based on {@link #shape}
+	 */
 	public String getCurrentShape() {
 		switch (shape) {
 		case CIRCLE:
@@ -141,6 +154,13 @@ public class PaintWindow extends JPanel implements ActionListener,
 		}
 	}
 
+	/**
+	 * Invokes a new frame with a {@link JColorChooser} <br>
+	 * <b>Known bug:</b> This opens a new window in a new thread every time it
+	 * is called, instead of the same. Have not found way to do this in one
+	 * frame without initializing a new one at every call without
+	 * NullPointerException when trying to choose color
+	 */
 	public void showColorPicker() {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -149,6 +169,11 @@ public class PaintWindow extends JPanel implements ActionListener,
 		});
 	}
 
+	/**
+	 * Removes the last shape in {@link #coloredShapes} and adds this to
+	 * {@link #undoneColoredShapes}, before calling {@link #repaint()} so that
+	 * the last shape drawn disappears from the canvas.
+	 */
 	public void undo() {
 
 		if (coloredShapes.size() != 0) {
@@ -160,6 +185,12 @@ public class PaintWindow extends JPanel implements ActionListener,
 		}
 	}
 
+	/**
+	 * Removes the last shape in {@link #undoneColoredShapes} and adds this to
+	 * {@link #coloredShapes}, before calling {@link #repaint()} so that the
+	 * last shape to be removed by {@link #undo()} is painted onto the canvas
+	 * again.
+	 */
 	public void redo() {
 		if (undoneColoredShapes.size() != 0) {
 			ColoredShape cs = undoneColoredShapes.get(undoneColoredShapes
@@ -219,7 +250,7 @@ public class PaintWindow extends JPanel implements ActionListener,
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		Graphics2D g2 = (Graphics2D) getGraphics();
-		g2.setXORMode(Color.white);
+		g2.setXORMode(Color.WHITE);
 		g2.setColor(primaryColor);
 
 		switch (shape) {
