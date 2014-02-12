@@ -1,4 +1,5 @@
 *.class
+*.metadata
 _DS_Store
 
 # Package Files #
