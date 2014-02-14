@@ -241,10 +241,10 @@ public class Frame extends JFrame implements ActionListener, MouseListener {
 			fileMenu.add(menuItem);
 		}
 
-		if (paintWindow.undoneColoredShapes.size() == 0) {
-			editMenus[1].setEnabled(false);
-			;
-		}
+		editMenus[0].setEnabled(false);
+		editMenus[1].setEnabled(false);
+		editMenus[2].setEnabled(false);
+		
 		menuBar.add(fileMenu);
 
 		for (JMenuItem menuItem : editMenus) {

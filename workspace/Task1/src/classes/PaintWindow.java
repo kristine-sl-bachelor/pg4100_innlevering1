@@ -222,6 +222,10 @@ public class PaintWindow extends JPanel implements MouseListener,
 			repaint();
 		}
 		
+		if(coloredShapes.size() == 0) {
+			mainFrame.editMenus[0].setEnabled(false);
+			mainFrame.editMenus[2].setEnabled(false);
+		}
 		mainFrame.editMenus[1].setEnabled(true);
 	}
 
@@ -244,6 +248,7 @@ public class PaintWindow extends JPanel implements MouseListener,
 		if(undoneColoredShapes.size() == 0) {
 			mainFrame.editMenus[1].setEnabled(false);
 		}
+		mainFrame.editMenus[0].setEnabled(true);
 	}
 
 	/**
@@ -254,6 +259,9 @@ public class PaintWindow extends JPanel implements MouseListener,
 	public void clear() {
 		coloredShapes.clear();
 		undoneColoredShapes.clear();
+		mainFrame.editMenus[0].setEnabled(false);
+		mainFrame.editMenus[1].setEnabled(false);
+		mainFrame.editMenus[2].setEnabled(false);
 		repaint();
 	}
 
@@ -424,6 +432,12 @@ public class PaintWindow extends JPanel implements MouseListener,
 		startPoint = null;
 
 		repaint();
+		
+		mainFrame.editMenus[0].setEnabled(true);
+		mainFrame.editMenus[1].setEnabled(false);
+		mainFrame.editMenus[2].setEnabled(true);
+		
+		undoneColoredShapes.clear();
 	}
 
 	// Unused methods
