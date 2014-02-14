@@ -1,5 +1,6 @@
 package classes;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.io.File;
 import java.io.FileInputStream;
@@ -161,7 +162,7 @@ public class FileMenuOptions {
 	/**
 	 * Prints 
 	 */
-	public static void print() {
-
+	public static void print(Component comp) {
+		Print.printComponent(comp);
 	}
 }

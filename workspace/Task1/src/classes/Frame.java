@@ -156,7 +156,7 @@ public class Frame extends JFrame implements ActionListener, MouseListener {
 					paintWindow.coloredShapes);
 			break;
 		case "print":
-			FileMenuOptions.print();
+			FileMenuOptions.print(paintWindow);
 			break;
 		case "undo":
 			paintWindow.undo();

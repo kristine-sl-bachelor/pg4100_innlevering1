@@ -60,6 +60,10 @@ public class PaintWindow extends JPanel implements MouseListener,
 	public final int CIRCLE = 0, ELLIPSE = 1, LINE = 2, RECTANGLE = 3,
 			SQUARE = 4;
 	/**
+	 * A series of constants representing the three menu options undo, redo and clear.
+	 */
+	private final int UNDO = 0, REDO = 1, CLEAR = 2;
+	/**
 	 * The kind of shape that is currently being drawn
 	 */
 	private int shape;
@@ -82,7 +86,7 @@ public class PaintWindow extends JPanel implements MouseListener,
 	public Vector<ColoredShape> coloredShapes, undoneColoredShapes;
 	/**
 	 * The current file to save to. null if the file hasn't already been saved,
-	 * is set in FileMenuOptions.saveAs(java.awt.Container, File, Vector)}. 
+	 * is set in FileMenuOptions.saveAs(java.awt.Container, File, Vector)}.
 	 */
 	public File saveFile;
 	private static Frame mainFrame;
@@ -134,20 +138,20 @@ public class PaintWindow extends JPanel implements MouseListener,
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
-		g2.setStroke(new BasicStroke(3));
+		g2.setStroke(new BasicStroke(2));
 
 		for (ColoredShape coloredShape : coloredShapes) {
 			if (coloredShape.getShapeId() == LINE) {
 				g2.setColor(coloredShape.getPrimaryColor());
 				g2.draw(coloredShape.getShape());
 			} else {
-				if (coloredShape.hasBorder()) {
-					g2.setColor(coloredShape.getBorderColor());
-					g2.draw(coloredShape.getShape());
-				}
 				if (coloredShape.isFilled()) {
 					g2.setColor(coloredShape.getPrimaryColor());
 					g2.fill(coloredShape.getShape());
+				}
+				if (coloredShape.hasBorder()) {
+					g2.setColor(coloredShape.getBorderColor());
+					g2.draw(coloredShape.getShape());
 				}
 			}
 		}
@@ -221,12 +225,12 @@ public class PaintWindow extends JPanel implements MouseListener,
 
 			repaint();
 		}
-		
-		if(coloredShapes.size() == 0) {
-			mainFrame.editMenus[0].setEnabled(false);
-			mainFrame.editMenus[2].setEnabled(false);
+
+		if (coloredShapes.size() == 0) {
+			mainFrame.editMenus[UNDO].setEnabled(false);
+			mainFrame.editMenus[CLEAR].setEnabled(false);
 		}
-		mainFrame.editMenus[1].setEnabled(true);
+		mainFrame.editMenus[REDO].setEnabled(true);
 	}
 
 	/**
@@ -244,11 +248,11 @@ public class PaintWindow extends JPanel implements MouseListener,
 
 			repaint();
 		}
-		
-		if(undoneColoredShapes.size() == 0) {
-			mainFrame.editMenus[1].setEnabled(false);
+
+		if (undoneColoredShapes.size() == 0) {
+			mainFrame.editMenus[REDO].setEnabled(false);
 		}
-		mainFrame.editMenus[0].setEnabled(true);
+		mainFrame.editMenus[UNDO].setEnabled(true);
 	}
 
 	/**
@@ -259,9 +263,9 @@ public class PaintWindow extends JPanel implements MouseListener,
 	public void clear() {
 		coloredShapes.clear();
 		undoneColoredShapes.clear();
-		mainFrame.editMenus[0].setEnabled(false);
-		mainFrame.editMenus[1].setEnabled(false);
-		mainFrame.editMenus[2].setEnabled(false);
+		mainFrame.editMenus[UNDO].setEnabled(false);
+		mainFrame.editMenus[REDO].setEnabled(false);
+		mainFrame.editMenus[CLEAR].setEnabled(false);
 		repaint();
 	}
 
@@ -326,53 +330,21 @@ public class PaintWindow extends JPanel implements MouseListener,
 		}
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		Graphics2D g2 = (Graphics2D) getGraphics();
-		g2.setXORMode(Color.WHITE);
-		g2.setColor(primaryColor);
+		setDimensions(e);
+		ColoredShape cs = createShape(); 
 
-		switch (shape) {
+		if (coloredShapes.isEmpty())
+			coloredShapes.add(cs);
+		else
+			coloredShapes.lastElement().update(cs);
 
-		case CIRCLE:
-			int growth;
-			if (endPoint != null) {
-				growth = Math.max(width, height);
-				g2.drawOval(startX, startY, growth, growth);
-			}
-			setDimensions(e);
-			growth = Math.max(width, height);
-			g2.drawOval(startX, startY, growth, growth);
-			break;
-		case ELLIPSE:
-			if (endPoint != null)
-				g2.drawOval(startX, startY, width, height);
-			setDimensions(e);
-			g2.drawOval(startX, startY, width, height);
-			break;
-		case LINE:
-			if (endPoint != null)
-				g2.drawLine(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
-			endPoint = e.getPoint();
-			g2.drawLine(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
-			break;
-		case RECTANGLE:
-			if (endPoint != null)
-				g2.drawRect(startX, startY, width, height);
-			setDimensions(e);
-			g2.drawRect(startX, startY, width, height);
-			break;
-		case SQUARE:
-			if (endPoint != null) {
-				growth = Math.max(width, height);
-				g2.drawRect(startX, startY, growth, growth);
-			}
-			setDimensions(e);
-			growth = Math.max(width, height);
-			g2.drawRect(startX, startY, growth, growth);
-			break;
-		}
-
+		repaint();
 	}
 
 	/**
@@ -400,6 +372,23 @@ public class PaintWindow extends JPanel implements MouseListener,
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		setDimensions(e);
+		ColoredShape cs = createShape(); 
+
+		coloredShapes.add(cs);
+
+		endPoint = null;
+		startPoint = null;
+
+		repaint();
+
+		mainFrame.editMenus[UNDO].setEnabled(true);
+		mainFrame.editMenus[REDO].setEnabled(false);
+		mainFrame.editMenus[CLEAR].setEnabled(true);
+
+		undoneColoredShapes.clear();
+	}
+
+	private ColoredShape createShape() {
 		Shape s = null;
 
 		switch (shape) {
@@ -422,24 +411,10 @@ public class PaintWindow extends JPanel implements MouseListener,
 			s = new Rectangle2D.Float(startX, startY, growth, growth);
 			break;
 		}
-
-		ColoredShape cs = new ColoredShape(shape, s, primaryColor, hasBorder,
-				isFilled, borderColor);
-
-		coloredShapes.add(cs);
-
-		endPoint = null;
-		startPoint = null;
-
-		repaint();
 		
-		mainFrame.editMenus[0].setEnabled(true);
-		mainFrame.editMenus[1].setEnabled(false);
-		mainFrame.editMenus[2].setEnabled(true);
-		
-		undoneColoredShapes.clear();
+		return new ColoredShape(shape, s, primaryColor, hasBorder,
+				isFilled, borderColor); 
 	}
-
 	// Unused methods
 	@Override
 	public void mouseMoved(MouseEvent e) {

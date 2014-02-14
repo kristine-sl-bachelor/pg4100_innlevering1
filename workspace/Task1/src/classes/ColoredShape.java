@@ -51,4 +51,13 @@ public class ColoredShape implements Serializable {
 	public int getShapeId() {
 		return shapeId;
 	}
+	
+	public void update(ColoredShape cs){
+		this.shapeId = cs.shapeId;
+		this.shape = cs.shape;
+		this.primaryColor = cs.primaryColor;
+		this.hasBorder = cs.hasBorder;
+		this.isFilled = cs.isFilled;
+		this.borderColor = cs.borderColor;
+	}
 }
