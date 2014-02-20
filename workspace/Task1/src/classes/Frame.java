@@ -301,6 +301,6 @@ public class Frame extends JFrame implements ActionListener, MouseListener {
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-
+		//ble
 	}
 }
