@@ -1,4 +1,2 @@
-PG4100_Innlevering1
-===================
+# BANANAS ARE AWESOME
 
-PG4100 Innlevering 1 - Paint
